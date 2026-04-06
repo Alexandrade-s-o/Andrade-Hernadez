@@ -29,8 +29,9 @@ initSocket(io);
 
 app.use(
   cors({
-    origin: allowedOrigins,
+    origin: true,
     credentials: true,
+    optionsSuccessStatus: 200,
   })
 );
 app.use(express.json());
