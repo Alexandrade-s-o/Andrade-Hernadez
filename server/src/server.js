@@ -16,28 +16,52 @@ const allowedOrigins = [
 ].filter(Boolean);
 
 const app = express();
+
+// 1. Failsafe manual de CORS (Para asegurar que incluso los errores tengan cabeceras)
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, PATCH");
+  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  res.header("Access-Control-Allow-Credentials", "true");
+  if (req.method === "OPTIONS") {
+    return res.status(200).end();
+  }
+  next();
+});
+
+// 2. Middleware estándar de CORS
+app.use(
+  cors({
+    origin: true,
+    credentials: true,
+  })
+);
+
+app.use(express.json());
+
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: allowedOrigins,
+    origin: true,
     methods: ["GET", "POST", "PATCH"],
+    credentials: true,
   },
 });
 
 app.set("io", io);
 initSocket(io);
 
-app.use(
-  cors({
-    origin: true,
-    credentials: true,
-    optionsSuccessStatus: 200,
-  })
-);
-app.use(express.json());
+// Rutas
+app.get("/", (req, res) => {
+  res.send("Andrade Estudio API is ONLINE");
+});
 
 app.get("/api/health", (_req, res) => {
-  res.json({ status: "ok", app: "Andrade Estudio API", supabase: !!process.env.SUPABASE_URL });
+  res.json({ 
+    status: "ok", 
+    app: "Andrade Estudio API", 
+    supabase: !!process.env.SUPABASE_URL 
+  });
 });
 
 app.use("/api/auth", authRoutes);
