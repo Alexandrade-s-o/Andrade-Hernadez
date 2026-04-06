@@ -9,6 +9,8 @@ const initSocket = require("./socket");
 
 const allowedOrigins = [
   process.env.CLIENT_URL,
+  "https://andrade-hernadez.vercel.app",
+  "https://andrade-estudio.vercel.app",
   "http://localhost:5173",
   "http://localhost:3000",
 ].filter(Boolean);
