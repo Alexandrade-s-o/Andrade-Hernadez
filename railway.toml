@@ -1,3 +1,6 @@
+[settings]
+rootDirectory = "server"
+
 [build]
 builder = "NIXPACKS"
 
