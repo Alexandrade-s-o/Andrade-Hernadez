@@ -7,11 +7,17 @@ const authRoutes = require("./routes/auth.routes");
 const briefRoutes = require("./routes/brief.routes");
 const initSocket = require("./socket");
 
+const allowedOrigins = [
+  process.env.CLIENT_URL,
+  "http://localhost:5173",
+  "http://localhost:3000",
+].filter(Boolean);
+
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: process.env.CLIENT_URL || "http://localhost:5173",
+    origin: allowedOrigins,
     methods: ["GET", "POST", "PATCH"],
   },
 });
@@ -21,7 +27,14 @@ initSocket(io);
 
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || "http://localhost:5173",
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true,
   })
 );
 app.use(express.json());
