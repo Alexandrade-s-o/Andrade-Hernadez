@@ -8,6 +8,7 @@ const ChatPanel = ({ briefId, user }) => {
   const [messages, setMessages] = useState([]);
   const [text,     setText]     = useState("");
   const [socket,   setSocket]   = useState(null);
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768);
 
   useEffect(() => {
     if (!briefId) return;
@@ -30,6 +31,12 @@ const ChatPanel = ({ briefId, user }) => {
     return () => sock.disconnect();
   }, [briefId]);
 
+  useEffect(() => {
+    const onResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+
   const sorted = useMemo(
     () => [...messages].sort((a,b) => new Date(a.createdAt) - new Date(b.createdAt)),
     [messages]
@@ -50,7 +57,7 @@ const ChatPanel = ({ briefId, user }) => {
 
   return (
     <section style={s.root}>
-      <div style={s.feed}>
+      <div style={{ ...s.feed, ...(isMobile ? s.feedMobile : {}) }}>
         {sorted.length === 0 && (
           <p style={{ textAlign:"center", fontSize:"10px", letterSpacing:"0.2em",
             textTransform:"uppercase", color:"rgba(0,0,0,0.28)", padding:"2rem 0" }}>
@@ -70,7 +77,7 @@ const ChatPanel = ({ briefId, user }) => {
                   {new Date(msg.createdAt).toLocaleTimeString("es-ES",{ hour:"2-digit", minute:"2-digit" })}
                 </span>
               </div>
-              <div style={{ ...s.bubble, ...(own ? s.bubbleOwn : s.bubbleOther) }}>
+              <div style={{ ...s.bubble, ...(isMobile ? s.bubbleMobile : {}), ...(own ? s.bubbleOwn : s.bubbleOther) }}>
                 <p style={{ fontSize:"13px", lineHeight:"1.55", margin:0 }}>{msg.text}</p>
               </div>
             </div>
@@ -78,15 +85,15 @@ const ChatPanel = ({ briefId, user }) => {
         })}
       </div>
 
-      <footer style={s.footer}>
+      <footer style={{ ...s.footer, ...(isMobile ? s.footerMobile : {}) }}>
         <input value={text} onChange={e => setText(e.target.value)}
           onKeyDown={e => { if(e.key === "Enter"){ e.preventDefault(); send(); }}}
           placeholder="Escribe un mensaje..."
-          style={s.chatInput}
+          style={{ ...s.chatInput, ...(isMobile ? s.chatInputMobile : {}) }}
           onFocus={e => { e.target.style.borderColor="#00bcd4"; e.target.style.boxShadow="0 0 0 3px rgba(0,188,212,0.1)"; }}
           onBlur={e  => { e.target.style.borderColor="rgba(0,0,0,0.12)"; e.target.style.boxShadow="none"; }}
         />
-        <button onClick={send} style={s.sendBtn}
+        <button onClick={send} style={{ ...s.sendBtn, ...(isMobile ? s.sendBtnMobile : {}) }}
           onMouseEnter={e => { e.currentTarget.style.background="#00bcd4"; e.currentTarget.style.borderColor="#00bcd4"; }}
           onMouseLeave={e => { e.currentTarget.style.background="#000"; e.currentTarget.style.borderColor="#000"; }}
         >
@@ -102,36 +109,47 @@ const ChatPanel = ({ briefId, user }) => {
 const s = {
   root:{ display:"flex", flexDirection:"column", height:"100%", minHeight:"360px", overflow:"hidden" },
   feed:{ flex:1, overflowY:"auto", display:"flex", flexDirection:"column", gap:"14px", paddingRight:"4px" },
+  feedMobile:{ paddingRight:0 },
   bubble:{
     maxWidth:"72%", padding:"10px 14px", borderRadius:"14px",
     fontSize:"13px", lineHeight:"1.55",
   },
+  bubbleMobile:{ maxWidth:"88%" },
   bubbleOwn:{
     background:"#000", color:"#fff",
     borderTopRightRadius:"4px",
+    borderTopLeftRadius:"14px",
+    borderBottomLeftRadius:"14px",
+    borderBottomRightRadius:"14px",
   },
   bubbleOther:{
     background:"#f5f5f7", color:"#000",
     border:"1px solid rgba(0,0,0,0.08)",
     borderTopLeftRadius:"4px",
+    borderTopRightRadius:"14px",
+    borderBottomLeftRadius:"14px",
+    borderBottomRightRadius:"14px",
   },
   footer:{
     display:"flex", alignItems:"center", gap:"10px",
     paddingTop:"1rem", marginTop:"0.75rem",
     borderTop:"1px solid rgba(0,0,0,0.07)", flexShrink:0,
   },
+  footerMobile:{ gap:"8px", paddingTop:"0.75rem", marginTop:"0.5rem" },
   chatInput:{
     flex:1, padding:"10px 14px", fontSize:"13px",
     background:"#f5f5f7", border:"1px solid rgba(0,0,0,0.12)",
     borderRadius:"10px", color:"#000", outline:"none",
     fontFamily:"inherit", transition:"border-color 0.2s, box-shadow 0.2s",
   },
+  chatInputMobile:{ padding:"9px 12px", fontSize:"12px" },
   sendBtn:{
     width:"38px", height:"38px", borderRadius:"50%", flexShrink:0,
     background:"#000", border:"1px solid #000", cursor:"pointer",
     display:"flex", alignItems:"center", justifyContent:"center",
     color:"#fff", transition:"background 0.2s, border-color 0.2s",
   },
+  sendBtnMobile:{ width:"36px", height:"36px" },
   empty:{
     display:"flex", flexDirection:"column", alignItems:"center",
     justifyContent:"center", height:"100%", gap:"14px",
