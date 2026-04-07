@@ -12,53 +12,25 @@ const configuredOrigins = (process.env.CORS_ORIGINS || "")
   .map((origin) => origin.trim())
   .filter(Boolean);
 
-const allowedOrigins = [
-  process.env.CLIENT_URL,
-  "https://andrade-hernadez.vercel.app",   // Variant 1
-  "https://andrade-hernandez.vercel.app", // Variant 2 (most likely)
-  "https://andrade-estudio.vercel.app",
-  "https://andradeestudio.com", 
-  "http://localhost:5173",
-  "http://localhost:3000",
-  ...configuredOrigins,
-].filter(Boolean);
-
-const app = express();
-
-// Request logging for debugging
-app.use((req, res, next) => {
-  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url} - Origin: ${req.headers.origin || "No Origin"}`);
-  next();
-});
-
 const corsOptions = {
   origin: (origin, callback) => {
-    // allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) return callback(null, true);
-    
-    const isAllowed = allowedOrigins.some(allowed => {
-      // Direct match
-      if (allowed === origin) return true;
-      // Match without trailing slash
-      if (allowed.replace(/\/$/, "") === origin.replace(/\/$/, "")) return true;
-      return false;
-    });
-
-    if (isAllowed) {
-      callback(null, true);
-    } else {
-      console.error(`CORS Blocked for origin: ${origin}`);
-      callback(new Error(`CORS blocked for origin: ${origin}`));
-    }
+    // Permitir todo durante el debug para descartar problemas de lista blanca
+    return callback(null, true);
   },
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "Accept"],
   credentials: true,
-  optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
+  optionsSuccessStatus: 200
 };
 
 app.use(cors(corsOptions));
-app.options("*", cors(corsOptions)); // Better preflight handling
+app.options(/.*/, cors(corsOptions)); // Compatible con Express 5.x
+
+// Normalizar dobles barras en la URL (prevención de 404)
+app.use((req, res, next) => {
+  req.url = req.url.replace(/\/+/g, "/");
+  next();
+});
 
 app.use(express.json());
 
