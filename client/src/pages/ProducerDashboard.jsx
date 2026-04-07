@@ -3,7 +3,6 @@ import { io }                   from "socket.io-client";
 import { useNavigate }          from "react-router-dom";
 import BriefList  from "../components/BriefList";
 import ChatPanel  from "../components/ChatPanel";
-import { useAuth } from "../context/AuthContext";
 import api from "../lib/api";
 import { generateBriefPDF } from "../lib/generateBriefPDF";
 
@@ -14,8 +13,8 @@ const ProducerDashboard = () => {
   const [briefs, setBriefs]          = useState([]);
   const [selectedBrief, setSelected] = useState(null);
   const [notification, setNotif]     = useState("");
-  const { user, logout }             = useAuth();
   const navigate                     = useNavigate();
+  const user = { name: "Productor" };
 
   const loadBriefs = async () => {
     const { data } = await api.get("/briefs/producer");
@@ -24,7 +23,7 @@ const ProducerDashboard = () => {
   };
 
   useEffect(() => {
-    loadBriefs().catch(() => { logout(); navigate("/login"); });
+    loadBriefs().catch(() => { setBriefs([]); });
   }, []);
 
   useEffect(() => {
@@ -69,11 +68,11 @@ const ProducerDashboard = () => {
           </div>
 
           <button style={s.logoutBtn}
-            onClick={() => { logout(); navigate("/login"); }}
+            onClick={() => navigate("/cliente")}
             onMouseEnter={e => e.currentTarget.style.color = "#00bcd4"}
             onMouseLeave={e => e.currentTarget.style.color = "rgba(0,0,0,0.3)"}
           >
-            Cerrar sesión
+            Ir a Cliente
           </button>
         </aside>
 

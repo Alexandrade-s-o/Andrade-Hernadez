@@ -3,14 +3,13 @@ import { useNavigate }         from "react-router-dom";
 import BriefForm  from "../components/BriefForm";
 import BriefList  from "../components/BriefList";
 import ChatPanel  from "../components/ChatPanel";
-import { useAuth } from "../context/AuthContext";
 import api from "../lib/api";
 
 const ClientDashboard = () => {
   const [briefs, setBriefs]          = useState([]);
   const [selectedBrief, setSelected] = useState(null);
-  const { user, logout }             = useAuth();
   const navigate                     = useNavigate();
+  const user = { name: "Cliente" };
 
   const loadBriefs = async () => {
     const { data } = await api.get("/briefs/client");
@@ -19,7 +18,7 @@ const ClientDashboard = () => {
   };
 
   useEffect(() => {
-    loadBriefs().catch(() => { logout(); navigate("/login"); });
+    loadBriefs().catch(() => { setBriefs([]); });
   }, []);
 
   return (
@@ -52,11 +51,11 @@ const ClientDashboard = () => {
           </div>
 
           <button style={s.logoutBtn}
-            onClick={() => { logout(); navigate("/login"); }}
+            onClick={() => navigate("/productor")}
             onMouseEnter={e => e.currentTarget.style.color = "#00bcd4"}
             onMouseLeave={e => e.currentTarget.style.color = "rgba(0,0,0,0.3)"}
           >
-            Cerrar sesión
+            Ir a Productor
           </button>
         </aside>
 
