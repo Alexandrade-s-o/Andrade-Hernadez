@@ -37,6 +37,14 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 app.options(/.*/, cors(corsOptions));
+// Limpiar barras finales para evitar errores 405/404 en el proxy
+app.use((req, res, next) => {
+  if (req.url !== "/" && req.url.endsWith("/")) {
+    req.url = req.url.slice(0, -1);
+  }
+  next();
+});
+
 app.use(express.json());
 
 const server = http.createServer(app);
