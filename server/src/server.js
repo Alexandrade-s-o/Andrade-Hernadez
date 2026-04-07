@@ -19,10 +19,15 @@ const app = express();
 
 // 1. Failsafe manual de CORS (Para asegurar que incluso los errores tengan cabeceras)
 app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", req.headers.origin || "*");
+  const origin = req.headers.origin;
+  // Solo envía CORS headers si el origen está en la whitelist
+  if (origin && allowedOrigins.includes(origin)) {
+    res.header("Access-Control-Allow-Origin", origin);
+    res.header("Access-Control-Allow-Credentials", "true");
+  }
   res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, PATCH");
   res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
-  res.header("Access-Control-Allow-Credentials", "true");
+
   if (req.method === "OPTIONS") {
     return res.status(200).end();
   }
