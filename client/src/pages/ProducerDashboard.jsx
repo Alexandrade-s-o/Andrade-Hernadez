@@ -64,6 +64,15 @@ const ProducerDashboard = () => {
               <div style={s.navDot} />
               Gestión de Briefs
             </div>
+            <div
+              style={s.navLink}
+              onClick={() => navigate("/desarrollo-web")}
+              onMouseEnter={e => { e.currentTarget.style.background="rgba(0,188,212,0.07)"; e.currentTarget.style.color="#00bcd4"; }}
+              onMouseLeave={e => { e.currentTarget.style.background="transparent"; e.currentTarget.style.color="rgba(0,0,0,0.55)"; }}
+            >
+              <div style={s.navLinkDot} />
+              Desarrollo Web
+            </div>
           </nav>
 
           <div style={s.userTile}>
@@ -214,6 +223,13 @@ const s = {
     color:"#00bcd4", fontSize:"13px", fontWeight:600,
   },
   navDot:{ width:"6px", height:"6px", borderRadius:"50%", background:"#00bcd4", flexShrink:0 },
+  navLink:{
+    display:"flex", alignItems:"center", gap:"10px",
+    padding:"10px 12px", borderRadius:"10px", marginTop:"6px",
+    background:"transparent", color:"rgba(0,0,0,0.55)",
+    fontSize:"13px", fontWeight:600, cursor:"pointer", transition:"all 0.18s",
+  },
+  navLinkDot:{ width:"6px", height:"6px", borderRadius:"50%", background:"rgba(0,0,0,0.25)", flexShrink:0 },
   userTile:{
     display:"flex", alignItems:"center", gap:"10px",
     padding:"12px", borderRadius:"12px",
